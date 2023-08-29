@@ -1,6 +1,7 @@
 name: Deploy PR to GitHub Pages
 on:
     pull_request:
+        types: [opened, synchronize, ready_for_review]
 
 jobs:
     build-theme:
