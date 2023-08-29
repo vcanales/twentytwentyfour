@@ -44,8 +44,8 @@ jobs:
             # Create an HTML file with the download URL
             - name: Create HTML File
               run: |
-                  echo "<iframe id="wp-playground" style="width: 1200px; height: 800px"></iframe>
-                  <script type="module">
+                  echo "<iframe id=\"wp-playground\" style=\"width: 1200px; height: 800px\"></iframe>
+                  <script type=\"module\">
                       import { startPlaygroundWeb } from 'https://unpkg.com/@wp-playground/client/index.js';
 
                       const client = await startPlaygroundWeb({
@@ -62,15 +62,13 @@ jobs:
                                       username: 'admin',
                                       password: 'password',
                                   },
-                                  "steps": [
-                                    {
-                                        "step": "installTheme",
-                                        "themeZipFile": {
-                                            "resource": "url",
-                                            "url": "${{ steps.get_download_link.outputs.download_url }}"
-                                        }
-                                    }
-                                ]
+                                  {
+                                      step: 'installTheme',
+                                      themeZipFile: {
+                                          resource: 'url',
+                                          url: '${{ steps.get_download_link.outputs.download_url }}'
+                                      }
+                                  }
                               ],
                           },
                       });
