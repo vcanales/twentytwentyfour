@@ -44,7 +44,7 @@ jobs:
                   GH_DEBUG: api
               run: |
                   OUTPUT=$(gh api repos/vcanales/twentytwentyfour/actions/artifacts --jq 'first(.artifacts[] | select(.name == "theme-preview-1") | .archive_download_url)')
-                  echo "::set-output name=DOWNLOAD_URL::$OUTPUT"
+                  echo "DOWNLOAD_URL=$OUTPUT" >> $GITHUB_OUTPUT
             # Create an HTML file with the download URL
             - name: Create HTML File
               run: |
