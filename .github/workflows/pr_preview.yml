@@ -39,12 +39,11 @@ jobs:
               env:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
-                  echo "DOWNLOAD_URL=$(gh api repos/${{github.repository}}/actions/artifacts --paginate | jq '.artifacts[] | select(.name == \"theme-preview-${{github.event.pull_request.number}}\") | .archive_download_url')" >> $GITHUB_OUTPUT
+                  echo "DOWNLOAD_URL=$(gh api repos/vcanales/twentytwentyfour/actions/artifacts --paginate | jq 'first(.artifacts[] | select(.name == "theme-preview-1") | .archive_download_url)')" >> $GITHUB_OUTPUT
 
             # Create an HTML file with the download URL
             - name: Create HTML File
               run: |
-                  echo "$DOWNLOAD_URL"; \
                   echo "<iframe id=\"wp-playground\" style=\"width: 1200px; height: 800px\"></iframe>
                   <script type=\"module\">
                       import { startPlaygroundWeb } from 'https://unpkg.com/@wp-playground/client/index.js';
