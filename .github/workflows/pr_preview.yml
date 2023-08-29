@@ -41,7 +41,7 @@ jobs:
               id: get_download_link
               env:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                  GH_DEBUG: api
+                  GH_DEBUG: 1
               run: |
                   gh api repos/${{ github.repository }}/actions/artifacts --jq 'first(.artifacts[] | select(.name == "theme-preview-1") | .archive_download_url)' > download_url_call.json
                   OUTPUT=$(cat download_url_call.json)
