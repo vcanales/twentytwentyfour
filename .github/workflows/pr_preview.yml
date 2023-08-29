@@ -5,6 +5,7 @@ on:
 
 jobs:
     build-theme:
+        permissions: write-all
         name: 'Build theme zip'
         runs-on: ubuntu-latest
         steps:
