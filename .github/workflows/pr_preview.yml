@@ -33,7 +33,7 @@ jobs:
                   path: pr-${{github.event.pull_request.number}}-preview.zip
                   retention-days: 7
 
-            # Use the GitHub API to get the download URL for the artifact
+            # Use the GitHub API to get the download URL for the artifact and store it as an output
             - name: Get Download Link
               id: get_download_link
               env:
@@ -41,48 +41,45 @@ jobs:
               run: |
                   echo "::set-output name=download_url::$(gh api repos/${{github.repository}}/actions/artifacts --paginate | jq -r '.artifacts[] | select(.name == \"theme-preview-${{github.event.pull_request.number}}\") | .archive_download_url')"
 
+            # Create an HTML file with the download URL
+            - name: Create HTML File
+              run: |
+                  echo "<iframe id=\"wp-playground\" style=\"width: 1200px; height: 800px\"></iframe>
+                  <script type=\"module\">
+                      import { startPlaygroundWeb } from 'https://unpkg.com/@wp-playground/client/index.js';
+
+                      const client = await startPlaygroundWeb({
+                          iframe: document.getElementById('wp-playground'),
+                          blueprint: {
+                              landingPage: '/wp-admin/',
+                              preferredVersions: {
+                                  php: '8.0',
+                                  wp: 'latest',
+                              },
+                              steps: [
+                                  {
+                                      step: 'login',
+                                      username: 'admin',
+                                      password: 'password',
+                                  },
+                                  {
+                                      step: 'installTheme',
+                                      themeZipFile: {
+                                          resource: 'url',
+                                          url: '${{ steps.get_download_link.outputs.download_url }}'
+                                      }
+                                  }
+                              ],
+                          },
+                      });
+
+                      await client.isReady;
+                      client.goTo('/');
+                  </script>" > index-${{github.event.pull_request.number}}.html
+
             - name: Upload HTML File
               uses: actions/upload-artifact@v3
               with:
                   name: theme-preview-html-${{github.event.pull_request.number}}
                   path: index-${{github.event.pull_request.number}}.html
                   retention-days: 7
-          outputs:
-              download_url: ${{ steps.get_download_link.outputs.download_url }}
-
-    create-html-file:
-        # Create an HTML file with the download URL
-        - name: Create HTML File
-          run: |
-              echo "<iframe id=\"wp-playground\" style=\"width: 1200px; height: 800px\"></iframe>
-              <script type=\"module\">
-                  import { startPlaygroundWeb } from 'https://unpkg.com/@wp-playground/client/index.js';
-
-                  const client = await startPlaygroundWeb({
-                      iframe: document.getElementById('wp-playground'),
-                      blueprint: {
-                          landingPage: '/wp-admin/',
-                          preferredVersions: {
-                              php: '8.0',
-                              wp: 'latest',
-                          },
-                          steps: [
-                              {
-                                  step: 'login',
-                                  username: 'admin',
-                                  password: 'password',
-                              },
-                              {
-                                  step: 'installTheme',
-                                  themeZipFile: {
-                                      resource: 'url',
-                                      url: '${{needs.build-theme.outputs.download_url}}',
-                                  }
-                              }
-                          ],
-                      },
-                  });
-
-                  await client.isReady;
-                  client.goTo('/');
-              </script>" > index-${{github.event.pull_request.number}}.html
