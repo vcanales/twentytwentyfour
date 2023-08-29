@@ -44,6 +44,7 @@ jobs:
             # Create an HTML file with the download URL
             - name: Create HTML File
               run: |
+                  echo "$DOWNLOAD_URL"; \
                   echo "<iframe id=\"wp-playground\" style=\"width: 1200px; height: 800px\"></iframe>
                   <script type=\"module\">
                       import { startPlaygroundWeb } from 'https://unpkg.com/@wp-playground/client/index.js';
