@@ -43,7 +43,7 @@ jobs:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
                   gh auth status
-                  gh api repos/vcanales/twentytwentyfour/actions/artifacts --jq 'first(.artifacts[] | select(.name == "theme-preview-1") | .archive_download_url)'
+                  gh api repos/vcanales/twentytwentyfour/actions/artifacts --json --jq 'first(.artifacts[] | select(.name == "theme-preview-1") | .archive_download_url)'
                   OUTPUT="$(gh api repos/vcanales/twentytwentyfour/actions/artifacts --jq 'first(.artifacts[] | select(.name == "theme-preview-1") | .archive_download_url)')"
                   if [ -z "$OUTPUT" ]; then
                       echo "Error or empty output from gh api command"
