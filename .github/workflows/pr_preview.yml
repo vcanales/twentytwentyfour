@@ -44,6 +44,7 @@ jobs:
                   GH_DEBUG: api
               run: |
                   gh api repos/${{ github.repository }}/actions/artifacts --jq 'first(.artifacts[] | select(.name == "theme-preview-1") | .archive_download_url)' >> download_url_call.json
+                  ls -la
                   OUTPUT=$(cat download_url_call.json)
                   echo $OUTPUT
                   echo "DOWNLOAD_URL=$OUTPUT" >> $GITHUB_OUTPUT
