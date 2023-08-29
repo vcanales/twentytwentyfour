@@ -10,17 +10,80 @@ jobs:
         steps:
             - name: Checkout
               uses: actions/checkout@v2
+
             - name: Build theme zip
               run: |
                   zip -r pr-${{github.event.pull_request.number}}-preview.zip *
+
+            # Delete previous artifacts for this PR
+            - name: Delete Previous Artifacts
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  ARTIFACTS=$(gh api repos/${{github.repository}}/actions/artifacts --paginate | jq '.artifacts[] | select(.name == "theme-preview-${{github.event.pull_request.number}}") | .id')
+                  for ID in $ARTIFACTS; do
+                      gh api repos/${{github.repository}}/actions/artifacts/$ID -X DELETE
+                  done
+
             - name: Upload Artifact
               uses: actions/upload-artifact@v3
               with:
                   name: theme-preview-${{github.event.pull_request.number}}
                   path: pr-${{github.event.pull_request.number}}-preview.zip
                   retention-days: 7
-            - name: Echo Download Link
+
+            # Use the GitHub API to get the download URL for the artifact
+            - name: Get Download Link
+              id: get_download_link
               env:
-                  GH_TOKEN: ${{ github.token }}
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
-                  gh api repos/${{github.repository}}/actions/artifacts --paginate | jq -r '.artifacts[] | select(.name == \"theme-preview-${{github.event.pull_request.number}}\") | .archive_download_url'
+                  echo "::set-output name=download_url::$(gh api repos/${{github.repository}}/actions/artifacts --paginate | jq -r '.artifacts[] | select(.name == \"theme-preview-${{github.event.pull_request.number}}\") | .archive_download_url')"
+
+            # Create an HTML file with the download URL
+            - name: Create HTML File
+              run: |
+                  echo "<iframe id="wp-playground" style="width: 1200px; height: 800px"></iframe>
+                  <script type="module">
+                      import { startPlaygroundWeb } from 'https://unpkg.com/@wp-playground/client/index.js';
+
+                      const client = await startPlaygroundWeb({
+                          iframe: document.getElementById('wp-playground'),
+                          blueprint: {
+                              landingPage: '/wp-admin/',
+                              preferredVersions: {
+                                  php: '8.0',
+                                  wp: 'latest',
+                              },
+                              steps: [
+                                  {
+                                      step: 'login',
+                                      username: 'admin',
+                                      password: 'password',
+                                  },
+                                  "steps": [
+                                    {
+                                        "step": "installTheme",
+                                        "themeZipFile": {
+                                            "resource": "url",
+                                            "url": "${{ steps.get_download_link.outputs.download_url }}"
+                                        }
+                                    }
+                                ]
+                              ],
+                          },
+                      });
+
+                      await client.isReady;
+                      client.goTo('/');
+                  </script>" > index-${{github.event.pull_request.number}}.html
+
+            - name: Upload HTML File
+              uses: actions/upload-artifact@v3
+              with:
+                  name: theme-preview-html-${{github.event.pull_request.number}}
+                  path: index-${{github.event.pull_request.number}}.html
+                  retention-days: 7
+
+        outputs:
+            download_url: ${{ steps.get_download_link.outputs.download_url }}

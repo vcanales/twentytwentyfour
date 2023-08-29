@@ -1,0 +1,22 @@
+name: Delete Artifacts on PR Close
+
+on:
+    pull_request:
+        types: [closed]
+
+jobs:
+    delete-artifacts:
+        runs-on: ubuntu-latest
+        name: Delete PR Artifacts
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
+
+            - name: Delete Artifacts related to the PR
+              env:
+                  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+              run: |
+                  ARTIFACTS=$(gh api repos/${{github.repository}}/actions/artifacts --paginate | jq '.artifacts[] | select(.name == "theme-preview-${{github.event.pull_request.number}}") | .id')
+                  for ID in $ARTIFACTS; do
+                      gh api repos/${{github.repository}}/actions/artifacts/$ID -X DELETE
+                  done
