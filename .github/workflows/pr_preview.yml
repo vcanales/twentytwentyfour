@@ -1,0 +1,20 @@
+name: Deploy PR to GitHub Pages
+on:
+    pull_request:
+
+jobs:
+    build-theme:
+        name: 'Build theme zip'
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v2
+            - name: Build theme zip
+              run: |
+                  zip -r pr-${{github.event.pull_request.number}}-preview.zip *
+            - name: Upload Artifact
+              uses: actions/upload-artifact@v3
+              with:
+                  name: theme-preview
+                  path: pr-${{github.event.pull_request.number}}-preview.zip
+                  retention-days: 7
