@@ -16,9 +16,9 @@ jobs:
             - name: Upload Artifact
               uses: actions/upload-artifact@v3
               with:
-                  name: theme-preview
+                  name: theme-preview-${{github.event.pull_request.number}}
                   path: pr-${{github.event.pull_request.number}}-preview.zip
                   retention-days: 7
             - name: Echo Download Link
               run: |
-                  echo "gh api repos/${{github.repository}}/actions/artifacts --paginate | jq -r '.artifacts[] | select(.name == \"theme-preview\") | .archive_download_url'"
+                  gh api repos/${{github.repository}}/actions/artifacts --paginate | jq -r '.artifacts[] | select(.name == \"theme-preview-${{github.event.pull_request.number}}\") | .archive_download_url'
