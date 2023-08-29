@@ -70,7 +70,7 @@ jobs:
                                       step: 'installTheme',
                                       themeZipFile: {
                                           resource: 'url',
-                                          url: '${{ steps.get_download_link.outputs.OUTPUT_NAME }}'
+                                          url: '${{ steps.get_download_link.outputs.DOWNLOAD_URL }}'
                                       }
                                   }
                               ],
