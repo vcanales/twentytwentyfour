@@ -43,7 +43,9 @@ jobs:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
                   GH_DEBUG: api
               run: |
-                  OUTPUT=$(gh api repos/vcanales/twentytwentyfour/actions/artifacts --jq 'first(.artifacts[] | select(.name == "theme-preview-1") | .archive_download_url)')
+                  gh api repos/vcanales/twentytwentyfour/actions/artifacts --jq 'first(.artifacts[] | select(.name == "theme-preview-1") | .archive_download_url)' > download_url_call.json
+                  OUTPUT=$(cat download_url_call.json)
+                  echo $OUTPUT
                   echo "DOWNLOAD_URL=$OUTPUT" >> $GITHUB_OUTPUT
             # Create an HTML file with the download URL
             - name: Create HTML File
