@@ -33,13 +33,13 @@ jobs:
                   path: pr-${{github.event.pull_request.number}}-preview.zip
                   retention-days: 7
 
-            # Use the GitHub API to get the download URL for the artifact and store it as an output
+            # Use the GitHub API to get the download URL for the artifact and store it as an output for use on the next step
             - name: Get Download Link
               id: get_download_link
               env:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
-                  echo "::set-output name=download_url::$(gh api repos/${{github.repository}}/actions/artifacts --paginate | jq -r '.artifacts[] | select(.name == \"theme-preview-${{github.event.pull_request.number}}\") | .archive_download_url')"
+                  echo "DOWNLOAD_URL=$(gh api repos/${{github.repository}}/actions/artifacts --paginate | jq '.artifacts[] | select(.name == \"theme-preview-${{github.event.pull_request.number}}\") | .archive_download_url')" >> $GITHUB_OUTPUT
 
             # Create an HTML file with the download URL
             - name: Create HTML File
@@ -66,7 +66,7 @@ jobs:
                                       step: 'installTheme',
                                       themeZipFile: {
                                           resource: 'url',
-                                          url: '${{ steps.get_download_link.outputs.download_url }}'
+                                          url: '$DOWNLOAD_URL'
                                       }
                                   }
                               ],
