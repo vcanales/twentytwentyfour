@@ -39,7 +39,13 @@ jobs:
               env:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
-                  echo "DOWNLOAD_URL=$(gh api repos/vcanales/twentytwentyfour/actions/artifacts --paginate | jq 'first(.artifacts[] | select(.name == "theme-preview-1") | .archive_download_url)')" >> $GITHUB_OUTPUT
+                  gh auth login --with-token <<< "$GH_TOKEN"
+                  OUTPUT=$(gh api repos/${{github.repository}}/actions/artifacts --paginate 2>&1 | jq 'first(.artifacts[] | select(.name == "theme-preview-1") | .archive_download_url)')
+                  if [ -z "$OUTPUT" ]; then
+                      echo "Error or empty output from gh api command"
+                  else
+                      echo "::set-output name=DOWNLOAD_URL::$OUTPUT"
+                  fi
 
             # Create an HTML file with the download URL
             - name: Create HTML File
