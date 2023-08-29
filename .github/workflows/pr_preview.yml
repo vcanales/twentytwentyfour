@@ -39,7 +39,7 @@ jobs:
               env:
                   GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
               run: |
-                  gh auth login --with-token <<< "$GH_TOKEN"
+                  gh auth status
                   OUTPUT=$(gh api repos/${{github.repository}}/actions/artifacts --paginate 2>&1 | jq 'first(.artifacts[] | select(.name == "theme-preview-1") | .archive_download_url)')
                   if [ -z "$OUTPUT" ]; then
                       echo "Error or empty output from gh api command"
