@@ -47,43 +47,42 @@ jobs:
                   name: theme-preview-html-${{github.event.pull_request.number}}
                   path: index-${{github.event.pull_request.number}}.html
                   retention-days: 7
-
-        outputs:
-            download_url: ${{ steps.get_download_link.outputs.download_url }}
+          outputs:
+              download_url: ${{ steps.get_download_link.outputs.download_url }}
 
     create-html-file:
         # Create an HTML file with the download URL
         - name: Create HTML File
-        run: |
-            echo "<iframe id=\"wp-playground\" style=\"width: 1200px; height: 800px\"></iframe>
-            <script type=\"module\">
-                import { startPlaygroundWeb } from 'https://unpkg.com/@wp-playground/client/index.js';
+          run: |
+              echo "<iframe id=\"wp-playground\" style=\"width: 1200px; height: 800px\"></iframe>
+              <script type=\"module\">
+                  import { startPlaygroundWeb } from 'https://unpkg.com/@wp-playground/client/index.js';
 
-                const client = await startPlaygroundWeb({
-                    iframe: document.getElementById('wp-playground'),
-                    blueprint: {
-                        landingPage: '/wp-admin/',
-                        preferredVersions: {
-                            php: '8.0',
-                            wp: 'latest',
-                        },
-                        steps: [
-                            {
-                                step: 'login',
-                                username: 'admin',
-                                password: 'password',
-                            },
-                            {
-                                step: 'installTheme',
-                                themeZipFile: {
-                                    resource: 'url',
-                                    url: '${{needs.build-theme.outputs.download_url}}',
-                                }
-                            }
-                        ],
-                    },
-                });
+                  const client = await startPlaygroundWeb({
+                      iframe: document.getElementById('wp-playground'),
+                      blueprint: {
+                          landingPage: '/wp-admin/',
+                          preferredVersions: {
+                              php: '8.0',
+                              wp: 'latest',
+                          },
+                          steps: [
+                              {
+                                  step: 'login',
+                                  username: 'admin',
+                                  password: 'password',
+                              },
+                              {
+                                  step: 'installTheme',
+                                  themeZipFile: {
+                                      resource: 'url',
+                                      url: '${{needs.build-theme.outputs.download_url}}',
+                                  }
+                              }
+                          ],
+                      },
+                  });
 
-                await client.isReady;
-                client.goTo('/');
-            </script>" > index-${{github.event.pull_request.number}}.html
+                  await client.isReady;
+                  client.goTo('/');
+              </script>" > index-${{github.event.pull_request.number}}.html
