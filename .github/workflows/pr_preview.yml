@@ -20,5 +20,7 @@ jobs:
                   path: pr-${{github.event.pull_request.number}}-preview.zip
                   retention-days: 7
             - name: Echo Download Link
+              env:
+                  GH_TOKEN: ${{ github.token }}
               run: |
                   gh api repos/${{github.repository}}/actions/artifacts --paginate | jq -r '.artifacts[] | select(.name == \"theme-preview-${{github.event.pull_request.number}}\") | .archive_download_url'
